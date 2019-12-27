@@ -1,0 +1,38 @@
+{
+  "name": "solidity-design-patterns",
+  "version": "1.0.0",
+  "description": "Quick reference guide for common design patterns and best practices used in smart contract development for the Ethereum blockchain using Solidity programming language",
+  "main": "",
+  "dependencies": {
+    "bn.js": "^5.0.0"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "openzeppelin-test-helpers": "^0.5.1",
+    "truffle": "^5.1.5"
+  },
+  "scripts": {
+    "test": ""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fodisi/solidity-design-patterns.git"
+  },
+  "keywords": [
+    "solidity",
+    "smartcontract",
+    "ethereum",
+    "smart-contract",
+    "designpatterns",
+    "design-patterns",
+    "bestpractices",
+    "best-practices",
+    "fodisi"
+  ],
+  "author": "fodisi",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/fodisi/solidity-design-patterns/issues"
+  },
+  "homepage": "https://github.com/fodisi/solidity-design-patterns#readme"
+}
