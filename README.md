@@ -1,5 +1,5 @@
-# Solidity Design Patterns
-The objective of this repository is to provide an easy and quick reference for common design patterns used in smart contract development for the Ethereum blockchain using Solidity programming language.
+# Smart Contracts - Design Patterns and Best Practices
+The objective of this repository is to provide an easy and quick reference guide for common design patterns and best practices used in smart contract development for the Ethereum blockchain.
 
 Each pattern contains a detailed description and at least on code sample for the design pattern.
 
