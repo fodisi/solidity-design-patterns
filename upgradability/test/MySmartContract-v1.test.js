@@ -21,7 +21,7 @@ contract("MySmartContract", function([_, deployer ]) {
 
   it("reverts when stopped", async function() {
     this.contract = await MySmartContract.new({from: deployer});
-    await this.contract.toggleContractPaused({from: deployer});
+    await this.contract.toggleContractStopped({from: deployer});
     await expectRevert(this.contract.incrementCounter(), "Contract is stopped.");
   });
 
