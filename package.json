@@ -3,9 +3,7 @@
   "version": "1.0.0",
   "description": "Quick reference guide for common design patterns and best practices used in smart contract development for the Ethereum blockchain using Solidity programming language",
   "main": "",
-  "dependencies": {
-    "bn.js": "^5.0.0"
-  },
+  "dependencies": {},
   "devDependencies": {
     "chai": "^4.2.0",
     "openzeppelin-test-helpers": "^0.5.1",
