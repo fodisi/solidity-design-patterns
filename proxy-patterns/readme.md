@@ -10,7 +10,7 @@ Proxy Patterns are frequently used to facilitate and improve smart contract's up
 - Unstructured Storage Proxy
 - Transparent Proxy
 
-Before we dive into each type of Proxy, take a look at this [article](../Upgradability/index.md) to better understand what are the problems (or at least the most common ones) with smart contract's upgradability that Proxy Patterns try to solve.
+Before we dive into each type of Proxy, take a look at this [article](../upgradability/readme.md) to better understand what are the most common challenges with smart contract's upgradability to understand what Proxy Patterns try to solve.
 
 
 ## How to Choose a Proxy Pattern
