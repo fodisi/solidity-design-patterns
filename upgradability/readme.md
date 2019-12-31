@@ -159,6 +159,140 @@ In contracts with a more complex state, the work required to perform an upgrade 
 
 *Note:* This approach generally uses [Delegatecall](https://solidity.readthedocs.io/en/latest/introduction-to-smart-contracts.html#delegatecall-callcode-and-libraries). The *state contract* invokes the functions in the *logic contract* using *delegatecall*. The *logic contract* then executes its logic in the context of *state contract*, which means that *"storage, current address and balance still refer to the calling contract, only the code is taken from the called address."* (from Solidity docs referenced above).
 
+## Making `MySmartContract` Easier to Upgrade
+Below you can see how `Version 1` and `Version 2` would look like if we implement the changes described here in this article. It's important to mention again that the strategies used for `MySmartContract` are acceptable considering its simplicity: state variables and logic.
+
+First, let's see `Version 1` changes:
+
+**Version 1 - Without Upgradable Mechanisms**
+```
+contract MySmartContract {
+  uint32 public counter;
+
+  constructor() public {
+    counter = 0;
+  }
+
+  function incrementCounter() public {
+    counter += 2; // This "bug" is intentional.
+  }
+}
+```
+
+In the code below, `Version 1` implements a [Circuit Breaker](https://consensys.github.io/smart-contract-best-practices/software_engineering/#circuit-breakers-pause-contract-functionality) with an [Access Restriction](https://solidity.readthedocs.io/en/latest/common-patterns.html#restricting-access) mechanism that allows the owner to stop the contract once it is deprecated.
+
+**Version 1 - With Deprecation Mechanism**
+```
+contract MySmartContract {
+  uint32 public counter;
+  bool private stopped = false;
+  address private owner;
+
+  /**
+  @dev Checks if the contract is not stopped; reverts if it is.
+  */
+  modifier isNotStopped {
+    require(!stopped, 'Contract is stopped.');
+    _;
+  }
+
+  /**
+  @dev Enforces the caller to be the contract's owner.
+  */
+  modifier isOwner {
+    require(msg.sender == owner, 'Sender is not owner.');
+    _;
+  }
+
+  constructor() public {
+    counter = 0;
+    // Sets the contract's owner as the address that deployed the contract.
+    owner = msg.sender;
+  }
+
+  /**
+  @notice Increments the contract's counter if contract is active.
+  @dev It will revert is the contract is stopped. See modifier "isNotStopped"
+   */
+  function incrementCounter() isNotStopped public {
+    counter += 2; // This is an intentional bug.
+  }
+
+  /**
+  @dev Stops / Unstops the contract.
+   */
+  function toggleContractStopped() isOwner public {
+      stopped = !stopped;
+  }
+}
+```
+
+Now let's see how `Version 2` would look like:
+**Version 2 - Without Upgradable Mechanisms**
+```
+contract MySmartContract {
+  uint32 public counter;
+
+  constructor(uint32 _counter) public {
+    counter = _counter;
+  }
+
+  function incrementCounter() public {
+    counter++;
+  }
+}
+```
+
+In the code below `Version 2` implements the same [Circuit Breaker](https://consensys.github.io/smart-contract-best-practices/software_engineering/#circuit-breakers-pause-contract-functionality) and [Access Restriction](https://solidity.readthedocs.io/en/latest/common-patterns.html#restricting-access) mechanisms as `Version 1`. In addition, it implements a constructor that allows setting the initial value of `counter` during deployment. This mechanism can be used, which can be used during an upgrade to copy data from an old version.
+
+**Version 2 - With Simple Upgradable Mechanism**
+```
+contract MySmartContract {
+  uint32 public counter;
+  bool private stopped = false;
+  address private owner;
+
+  /**
+  @dev Checks if the contract is not stopped; reverts if it is.
+  */
+  modifier isNotStopped {
+    require(!stopped, 'Contract is stopped.');
+    _;
+  }
+
+  /**
+  @dev Enforces the caller to be the contract's owner.
+  */
+  modifier isOwner {
+    require(msg.sender == owner, 'Sender is not owner.');
+    _;
+  }
+
+  constructor(uint32 _counter) public {
+    counter = _counter; // Allows setting counter's initial value on deployment.
+    // Sets the contract's owner as the address that deployed the contract.
+    owner = msg.sender;
+  }
+
+  /**
+  @notice Increments the contract's counter if contract is active.
+  @dev It will revert is the contract is stopped. See modifier "isNotStopped"
+   */
+  function incrementCounter() isNotStopped public {
+    counter++; // Fixes bug introduced in version 1.
+  }
+
+  /**
+  @dev Stops / Unstops the contract.
+   */
+  function toggleContractStopped() isOwner public {
+      stopped = !stopped;
+  }
+}
+```
+
+Although the changes above implement some mechanisms that help upgrading smart contracts, the first challenge described in the beginning of this article, *Clients to Reference the New Contract's Address*, is not solved with these simple techniques. More advanced patterns like [Proxies](**ADD LINK TO MY ARTICLE**) and [Registry](https://consensys.github.io/smart-contract-best-practices/software_engineering/#upgrading-broken-contracts) would be required to avoid all clients from upgrading to reference the new address of `Version 2`.
+
 
 ## Conclusion
 The principle of upgradable smart contracts is described in the Ethereum white paper's [DAO section](https://github.com/ethereum/wiki/wiki/White-Paper#decentralized-autonomous-organizations) that reads:
@@ -169,3 +303,6 @@ The principle of upgradable smart contracts is described in the Ethereum white p
 Although it is achievable, upgrading smart contracts can be quite challenging. The immutability of the blockchain adds more complexity to smart contract's upgrades because it forces you to carefully analyze the scenario in which the smart contract will be used, understand the available mechanisms, and then decide which mechanisms are a good fit to your contract, so a potential and probable upgrade will be smooth.
 
 Smart Contract upgradability is an active area of research. Related patterns, mechanisms and best practices are still under continuous discussion and development. Using *Libraries* and some Design Patterns like [Circuit Breaker](https://consensys.github.io/smart-contract-best-practices/software_engineering/#circuit-breakers-pause-contract-functionality), [Access Restriction](https://solidity.readthedocs.io/en/latest/common-patterns.html#restricting-access), [Proxies](**ADD LINK TO MY ARTICLE**) and [Registry](https://consensys.github.io/smart-contract-best-practices/software_engineering/#upgrading-broken-contracts) can help you to tackle some of the challenges. However, in more complex scenarios, these mechanisms alone may not be able to address all the issues, and you may need to consider more complex patterns like [Eternal Storage](https://blog.colony.io/writing-upgradeable-contracts-in-solidity-6743f0eecc88/), not mentioned in this article.
+
+You can check the full source code, including related unit tests (not mentioned in this article for simplicity reasons), as well as other patterns and best practices in this [github repository](https://github.com/fodisi/solidity-design-patterns).
+
