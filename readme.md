@@ -5,8 +5,8 @@ Each pattern contains a detailed description and at least on code sample for the
 
 
 ## Contents
-* [Upgradability](./Upgradability/index.md)
-  * [Proxy Patterns](./ProxyPatterns/index.md)
+* [Upgradability](./upgradability/readme.md)
+  * [Proxy Patterns](./proxy-patterns/readme.md)
 
 ## Disclaimers
 - The documentation and code sample described here may need updates and or changes based on the Solidity version used.
