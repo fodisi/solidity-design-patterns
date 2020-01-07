@@ -10,11 +10,13 @@ Proxy Patterns are frequently used to facilitate and improve smart contract's up
 - Unstructured Storage Proxy
 - Transparent Proxy
 
-Before we dive into each type of Proxy, take a look at this [article](../upgradability/readme.md) to better understand what are the most common challenges with smart contract's upgradability to understand what Proxy Patterns try to solve.
+If you're not familiar with how and when Proxy Patterns can be used to help creating upgradable smart contracts, take a look at this [article](../upgradability/readme.md). It describes some common challenges in upgrading smart contracts and highlights some patterns, including Proxies, that can be usefull under certain scenarios.
 
 
 ## How to Choose a Proxy Pattern
-Although design patterns are really helpful, there's no recipe or such thing as "one size fits all". Every approach has generally pros and cons, different levels of complexity, risks and costs associated. The best way to choose a design pattern (or sometimes, a set of them), is to better understand the scenario in which the smart contract will be used - it's business rules, actors, and other requirements. A few questions can help us gather more information about the scenario and help us identify the best patterns:
+Proxy Patterns can be really helpful, but there isn't an unique recipe to be followed to determine which pattern you should use (if you should use one). Every proxy type has its own pros and cons, different levels of complexity, required knowledge, risks and costs associated with it.
+
+The best way to choose a proxy pattern (and other design patterns too) is to understand the scenario in which your smart contract will be used - it's business rules, actors, complexity, usage, requirements, etc. A few questions can help you gather more information about the scenario in order to identify the best type of proxy pattern:
 
 1. What's the use case, and complexity of it, in which the smart contract will be used?
   
@@ -22,15 +24,15 @@ Although design patterns are really helpful, there's no recipe or such thing as 
 
 2. What's the expected frequency that the smart contract will be upgraded?
 
-    Is it based on some "battle tested" and/or stable code or is it implementing something completely new that still needs to go through scrutiny to prove it is bug free in the "wild"?
+    Is it based on some "battle tested" and/or stable code or is it implementing something completely new (that still needs to go through scrutiny to be proved "bug free in the wild")?
 
-3. Does the new version of the contract depends on state of the previous one?
+3. Does the new version of the contract depends on the state of the previous one?
 
     Do you need to keep the old data every time you deploy a new version or can the smart contract state can be re-initialized? And if you need to keep the data between the versions, how complex is the contract's state? Just a couple of [value types](https://solidity.readthedocs.io/en/v0.4.21/types.html#value-types) state variables or a more complex state composed of value and [reference types](https://solidity.readthedocs.io/en/v0.4.21/types.html#reference-types)?
 
-4. Should your smart contract have more than one active version on the blockchain?
+4. Can your smart contract have more than one active version on the blockchain?
 
-    If some client calls a method of Version 1 of your smart contract, should it fail, execute wherever the method is intended to do or somehow _forward_ the call to the new version?
+    If some client calls a method of Version 1 of your smart contract, should it fail, execute wherever the method is intended to do, or somehow _forward_ the call to the newest version?
 
 
 
