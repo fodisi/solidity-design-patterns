@@ -5,7 +5,7 @@ contract Proxy {
   address _owner;
 }
 
-contract LogicContract1 {
+contract LogicContract {
   address _impl;
   address _owner;
   address _logicOwner;
@@ -13,6 +13,21 @@ contract LogicContract1 {
   uint256 _supply;
   uint8 counter1;
   uint8 counter2;
+}
+
+contract Pausable {
+ bool _isPaused;
+}
+
+contract LogicContract1 is Pausable, LogicContract {
+ // (Pausable._isPaused) // Overwrites Proxy._impl
+ address _impl;
+ address _owner;
+ address _logicOwner;
+ mapping(address => uint256) balances;
+ uint256 _supply;
+ uint8 counter1;
+ uint8 counter2;
 }
 
 contract LogicContract2 {
