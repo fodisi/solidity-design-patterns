@@ -1,6 +1,6 @@
 # Upgradable Smart Contracts
 
-When developing software, it's quite frequent the releasing of new versions to add new functionalities or bug fixes. There's no difference when it comes to smart contract development. Although, updating a smart contract to a new version is usually not as simple as updating other types of software of same the complexity.
+When developing software, it's quite frequent the releasing of new versions to add new functionalities or bug fixes. There's no difference when it comes to smart contract development. Although, updating a smart contract to a new version is usually not as simple as updating other types of software of the same complexity.
 
 Most Blockchains, especially public ones like Ethereum, implement the intrinsic concept of immutability, which in theory, does not allow anyone to change the blockchain's "past". The immutability is applied to all transactions in the blockchain, including transactions used to deploy smart contracts and the associated code. In other words, once the smart contract's code is deployed to the blockchain, it will "live" forever "AS IS" - no one can change it. If a bug is found or a new functionality needs to be added, we cannot replace the code of a deployed contract.
 
@@ -11,7 +11,7 @@ But this approach raises a couple of challenges that need to be addressed. The m
 - The first contract's version should be disabled, enforcing every client to use the new version
 - Usually, you need to make sure the data (state) from the old version is migrated or somehow available to the new version. In the most simple scenario, this means you need to copy/migrate the state from the old version to the new contract's version
 
-The sections below describe these challenges in more details. To better illustrate it, we'll use the two versions below ot `MySmartContract` as a reference:
+The sections below describe these challenges in more detail. To better illustrate it, we'll use the two versions below of `MySmartContract` as a reference:
 
 **Version 1**
 ```
@@ -45,21 +45,23 @@ contract MySmartContract {
 
 
 ## Clients to Reference the New Contract's Address
-When deployed to the blockchain, every instance of the smart contract is assigned to a unique address. This address is used to reference the smart contract's instance in order to invoke its methods and read/write data from/to the contract's storage (state). When you deploy an updated version of the contract to the blockchain, the new instance of the contract will be deployed at a new address. This new address is completely different from the first contract's address. This means that all clients, other smart contracts and/or dApps (decentralized applications) that interact with the smart contract, will need to be updated so they use the address of the updated version.
+When deployed to the blockchain, every instance of the smart contract is assigned to a unique address. This address is used to reference the smart contract's instance in order to invoke its methods and read/write data from/to the contract's storage (state). When you deploy an updated version of the contract to the blockchain, the new instance of the contract will be deployed at a new address. This new address is different from the first contract's address. This means that all clients, other smart contracts and/or dApps (decentralized applications) that interact with the smart contract will need to be updated so they use the address of the updated version. Spoiler: there are some options to avoid this issue, that you’ll see at the end of this section.
 
 So, let's consider the following scenario:
 
 You created `MySmartContract` using the code of `Version 1` above. It is deployed to the blockchain at address `A1` (this is not a real Ethereum address - used only for illustration purposes). All clients that want to interact with `Version 1` need to use the address `A1` to reference it.
 
-Now, after a while, we noticed the bug in the method `incrementCounter`: it is incrementing the counter by 2, instead of increment it by 1. A fix is implemented, resulting in `Version 2` of `MySmartContract`. This new contract's version is deployed to the blockchain at address `D5`. At this point, if a client wants to interact with `Version 2`, it needs to use the address `D5`, not `A1`. This is the reason why all clients that are interacting with `MySmartContract` will need to update so they refer to the new address `D5`.
+Now, after a while, we noticed the bug in the method `incrementCounter`: it is incrementing the counter by 2, instead of incrementing it by 1. A fix is implemented, resulting in `Version 2` of `MySmartContract`. This new contract's version is deployed to the blockchain at address `D5`. At this point, if a user wants to interact with `Version 2`, it needs to use the address `D5`, not `A1`. This is the reason why all users that are interacting with `MySmartContract` will need to update so they refer to the new address `D5`.
 
-You probably agree that forcing clients to update is not the best approach, considering that updating a smart contract's version should be as transparent as possible to clients using it.
+You probably agree that forcing users to update is not the best approach, considering that updating a smart contract's version should be as transparent as possible to users using it.
 
-There are different strategies that can be used to address this problem. Some design patterns like [Registry](https://consensys.github.io/smart-contract-best-practices/software_engineering/#upgrading-broken-contracts) and different types of [Proxies](**ADD LINK TO MY ARTICLE**) can be used to make easier to upgrade and provide transparency to clients. The specific strategy to be used depends on the scenario the smart contract will be used.
+There are different strategies that can be used to address this problem. Some design patterns like [Registry](https://consensys.github.io/smart-contract-best-practices/software_engineering/#upgrading-broken-contracts), different types of [Proxies](https://blog.openzeppelin.com/proxy-patterns/) can be used to make it easier to upgrade and provide transparency to users. Another great option is to use the [Ethereum Name Service](https://ens.domains/) and register a user-friend name that resolves to your contract’s address. With this option, users of the contract don’t need to know the contract’s address, only its user-friendly name. As a result, upgrading to a new address would be transparent to your contract’s users.
+
+The specific strategy to be used depends on the scenario the smart contract will be used.
 
 
 ## Disabling Old Versions of the Contract
-We learned in the section above that all clients would need update to use `Version 2`'s address (`D5`) or our contract should implement some mechanism to make this process transparent to clients. Despite of that, there's no way to enforce that all clients will update to use the new address (`D5`) and may continue usign `A1` fi available. If you're the owner of the contract, you probably want to enforce that all clients use only the most up to date version and guarantee that `Version 1` is deprecated and unavailable for usage.
+We learned in the section above that all users would need an update to use `Version 2`'s address (`D5`) or our contract should implement some mechanism to make this process transparent to users. Despite that, if you're the owner of the contract, you probably want to enforce that all clients use only the most up to date version `D5`. If a user inadvertently or not  uses `A1`, you want to guarantee that `Version 1` is deprecated and unavailable for usage.
 
 In such scenarios, you could implement a technique to **stop** `MySmartContract`'s `Version 1`. This technique is implemented by a Design Pattern named [Circuit Breaker](https://consensys.github.io/smart-contract-best-practices/software_engineering/#circuit-breakers-pause-contract-functionality). It's also commonly referred to as *Pausable Contracts* or *Emergency Stop*.
 
@@ -104,7 +106,7 @@ contract MySmartContract {
 
   /**
   @notice Increments the contract's counter if contract is active.
-  @dev It will revert is the contract is stopped. See modifier "isNotStopped"
+  @dev It will revert if the contract is stopped. See modifier "isNotStopped"
    */
   function incrementCounter() isNotStopped public {
     counter += 2; // This is an intentional bug.
@@ -127,7 +129,7 @@ To learn more about Circuit Breakers, make sure you check Consensys' post about 
 
 
 ## Contract's Data (State) Migration
-Most smart contracts need to keep some sort of state in its internal storage. The number fo state variables required by each contract varies greatly depending on the use case. In our example, the original `MySmartContract`'s `Version 1` has a single state variable `counter`.
+Most smart contracts need to keep some sort of state in its internal storage. The number of state variables required by each contract varies greatly depending on the use case. In our example, the original `MySmartContract`'s `Version 1` has a single state variable `counter`.
 
 Now consider that `Version 1` of `MySmartContract` has been in use for a while. By the time you find the bug in `incrementCounter` function, the value of `counter` is already at `100`. This scenario would raise some questions:
 - What will you do with the state of `MySmartContract Version 2`?
@@ -145,7 +147,7 @@ After implementing this approach, the constructor of `MySmartContract Version 2`
   }
 ```
 
-If your use case is somewhat as simple as the presented above (or similar), this is probably the way to go from a data migration perspective. The complexity of implementing other approaches wouldn't be worth it. But, bear in mind that most production-ready smart contracts are not as simple as `MySmartContract` and frequently have a more complex state.
+If your use case is as simple as presented above (or similar), this is probably the way to go from a data migration perspective. The complexity of implementing other approaches wouldn't be worth it. But, bear in mind that most production-ready smart contracts are not as simple as `MySmartContract` and frequently have a more complex state.
 
 Now consider a contract that uses multiple [structs](https://solidity.readthedocs.io/en/latest/types.html#structs), [mappings](https://solidity.readthedocs.io/en/latest/types.html#mapping-types), and [arrays](https://solidity.readthedocs.io/en/latest/types.html#arrays). If you need to copy data between contract versions with such complex storage, you would probably face one or more the challenges below:
 - A bunch of transactions to be processed on the blockchain, which may take a considerable amount of time, depending on the data set
@@ -154,7 +156,7 @@ Now consider a contract that uses multiple [structs](https://solidity.readthedoc
 - Freeze `Version 1`'s state by using some mechanism (like a Circuit Breaker) to make sure no more data is appended to `Version 1` during the migration.
 - Implement access restriction mechanisms to avoid external parties (not related to the migration) from invoking functions of `Version 2` during the migration. This would be required to make sure `Version 1`'s data could be copied/migrated to `Version 2` without being compromised and/or corrupted in `Version 2`;
 
-In contracts with a more complex state, the work required to perform an upgrade is quite significant, and can incur in considerable gas costs to copy data over the blockchain. Using [Libraries](https://solidity.readthedocs.io/en/latest/contracts.html#libraries) and [Proxies](**ADD LINK TO MY ARTICLE**) can help you develop smart contracts that are easier to upgrade. With this approach, the data would be kept in a contract that stores the state but bears no logic (*state contract*). The second contract or library implements the logic, but bears no state (*logic contract*). So when a bug is found in the logic, you only need to upgrade the *logic contract*, without worrying about migrating the state stored in the *state contract* (see *Note* below).
+In contracts with a more complex state, the work required to perform an upgrade is quite significant, and can incur considerable gas costs to copy data over the blockchain. Using [Libraries](https://solidity.readthedocs.io/en/latest/contracts.html#libraries) and [Proxies](https://blog.openzeppelin.com/proxy-patterns/) can help you develop smart contracts that are easier to upgrade. With this approach, the data would be kept in a contract that stores the state but bears no logic (*state contract*). The second contract or library implements the logic, but bears no state (*logic contract*). So when a bug is found in the logic, you only need to upgrade the *logic contract*, without worrying about migrating the state stored in the *state contract* (see *Note* below).
 
 
 *Note:* This approach generally uses [Delegatecall](https://solidity.readthedocs.io/en/latest/introduction-to-smart-contracts.html#delegatecall-callcode-and-libraries). The *state contract* invokes the functions in the *logic contract* using *delegatecall*. The *logic contract* then executes its logic in the context of *state contract*, which means that *"storage, current address and balance still refer to the calling contract, only the code is taken from the called address."* (from Solidity docs referenced above).
@@ -291,7 +293,7 @@ contract MySmartContract {
 }
 ```
 
-Although the changes above implement some mechanisms that help upgrading smart contracts, the first challenge described in the beginning of this article, *Clients to Reference the New Contract's Address*, is not solved with these simple techniques. More advanced patterns like [Proxies](**ADD LINK TO MY ARTICLE**) and [Registry](https://consensys.github.io/smart-contract-best-practices/software_engineering/#upgrading-broken-contracts) would be required to avoid all clients from upgrading to reference the new address of `Version 2`.
+Although the changes above implement some mechanisms that help upgrading smart contracts, the first challenge described in the beginning of this article, *Clients to Reference the New Contract's Address*, is not solved with these simple techniques. More advanced patterns like [Proxies](https://blog.openzeppelin.com/proxy-patterns/) and [Registry](https://consensys.github.io/smart-contract-best-practices/software_engineering/#upgrading-broken-contracts), or using the [ENS](https://ens.domains/) to register a user-friendly name to your contract,  would be required to avoid all clients from upgrading to reference the new address of `Version 2`.
 
 
 ## Conclusion
@@ -302,7 +304,9 @@ The principle of upgradable smart contracts is described in the Ethereum white p
 
 Although it is achievable, upgrading smart contracts can be quite challenging. The immutability of the blockchain adds more complexity to smart contract's upgrades because it forces you to carefully analyze the scenario in which the smart contract will be used, understand the available mechanisms, and then decide which mechanisms are a good fit to your contract, so a potential and probable upgrade will be smooth.
 
-Smart Contract upgradability is an active area of research. Related patterns, mechanisms and best practices are still under continuous discussion and development. Using *Libraries* and some Design Patterns like [Circuit Breaker](https://consensys.github.io/smart-contract-best-practices/software_engineering/#circuit-breakers-pause-contract-functionality), [Access Restriction](https://solidity.readthedocs.io/en/latest/common-patterns.html#restricting-access), [Proxies](**ADD LINK TO MY ARTICLE**) and [Registry](https://consensys.github.io/smart-contract-best-practices/software_engineering/#upgrading-broken-contracts) can help you to tackle some of the challenges. However, in more complex scenarios, these mechanisms alone may not be able to address all the issues, and you may need to consider more complex patterns like [Eternal Storage](https://blog.colony.io/writing-upgradeable-contracts-in-solidity-6743f0eecc88/), not mentioned in this article.
+Smart Contract upgradability is an active area of research. Related patterns, mechanisms and best practices are still under continuous discussion and development. Using *Libraries* and some Design Patterns like [Circuit Breaker](https://consensys.github.io/smart-contract-best-practices/software_engineering/#circuit-breakers-pause-contract-functionality), [Access Restriction](https://solidity.readthedocs.io/en/latest/common-patterns.html#restricting-access), [Proxies](https://blog.openzeppelin.com/proxy-patterns/) and [Registry](https://consensys.github.io/smart-contract-best-practices/software_engineering/#upgrading-broken-contracts) can help you to tackle some of the challenges. However, in more complex scenarios, these mechanisms alone may not be able to address all the issues, and you may need to consider more complex patterns like [Eternal Storage](https://blog.colony.io/writing-upgradeable-contracts-in-solidity-6743f0eecc88/), not mentioned in this article.
 
 You can check the full source code, including related unit tests (not mentioned in this article for simplicity reasons), as well as other patterns and best practices in this [github repository](https://github.com/fodisi/solidity-design-patterns).
+
+
 
