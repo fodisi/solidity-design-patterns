@@ -7,8 +7,8 @@ Most Blockchains, especially public ones like Ethereum, implement the intrinsic 
 But, if a smart contract is immutable, how are you able to upgrade it to newer versions? The answer lies in deploying a new smart contract to the blockchain.
 
 But this approach raises a couple of challenges that need to be addressed. The most basic and common ones are:
-- All clients that use the smart contract need to reference the address of the new contract's version
-- The first contract's version should be disabled, enforcing every client to use the new version
+- All users that use the smart contract need to reference the address of the new contract's version
+- The first contract's version should be disabled, enforcing every user to use the new version
 - Usually, you need to make sure the data (state) from the old version is migrated or somehow available to the new version. In the most simple scenario, this means you need to copy/migrate the state from the old version to the new contract's version
 
 The sections below describe these challenges in more detail. To better illustrate it, we'll use the two versions below of `MySmartContract` as a reference:
@@ -44,12 +44,12 @@ contract MySmartContract {
 ```
 
 
-## Clients to Reference the New Contract's Address
-When deployed to the blockchain, every instance of the smart contract is assigned to a unique address. This address is used to reference the smart contract's instance in order to invoke its methods and read/write data from/to the contract's storage (state). When you deploy an updated version of the contract to the blockchain, the new instance of the contract will be deployed at a new address. This new address is different from the first contract's address. This means that all clients, other smart contracts and/or dApps (decentralized applications) that interact with the smart contract will need to be updated so they use the address of the updated version. Spoiler: there are some options to avoid this issue, that you’ll see at the end of this section.
+## Users to Reference the New Contract's Address
+When deployed to the blockchain, every instance of the smart contract is assigned to a unique address. This address is used to reference the smart contract's instance in order to invoke its methods and read/write data from/to the contract's storage (state). When you deploy an updated version of the contract to the blockchain, the new instance of the contract will be deployed at a new address. This new address is different from the first contract's address. This means that all users, other smart contracts and/or dApps (decentralized applications) that interact with the smart contract will need to be updated so they use the address of the updated version. Spoiler: there are some options to avoid this issue, that you’ll see at the end of this section.
 
 So, let's consider the following scenario:
 
-You created `MySmartContract` using the code of `Version 1` above. It is deployed to the blockchain at address `A1` (this is not a real Ethereum address - used only for illustration purposes). All clients that want to interact with `Version 1` need to use the address `A1` to reference it.
+You created `MySmartContract` using the code of `Version 1` above. It is deployed to the blockchain at address `A1` (this is not a real Ethereum address - used only for illustration purposes). All users that want to interact with `Version 1` need to use the address `A1` to reference it.
 
 Now, after a while, we noticed the bug in the method `incrementCounter`: it is incrementing the counter by 2, instead of incrementing it by 1. A fix is implemented, resulting in `Version 2` of `MySmartContract`. This new contract's version is deployed to the blockchain at address `D5`. At this point, if a user wants to interact with `Version 2`, it needs to use the address `D5`, not `A1`. This is the reason why all users that are interacting with `MySmartContract` will need to update so they refer to the new address `D5`.
 
@@ -61,7 +61,7 @@ The specific strategy to be used depends on the scenario the smart contract will
 
 
 ## Disabling Old Versions of the Contract
-We learned in the section above that all users would need an update to use `Version 2`'s address (`D5`) or our contract should implement some mechanism to make this process transparent to users. Despite that, if you're the owner of the contract, you probably want to enforce that all clients use only the most up to date version `D5`. If a user inadvertently or not  uses `A1`, you want to guarantee that `Version 1` is deprecated and unavailable for usage.
+We learned in the section above that all users would need an update to use `Version 2`'s address (`D5`) or our contract should implement some mechanism to make this process transparent to users. Despite that, if you're the owner of the contract, you probably want to enforce that all users use only the most up to date version `D5`. If a user inadvertently or not  uses `A1`, you want to guarantee that `Version 1` is deprecated and unavailable for usage.
 
 In such scenarios, you could implement a technique to **stop** `MySmartContract`'s `Version 1`. This technique is implemented by a Design Pattern named [Circuit Breaker](https://consensys.github.io/smart-contract-best-practices/software_engineering/#circuit-breakers-pause-contract-functionality). It's also commonly referred to as *Pausable Contracts* or *Emergency Stop*.
 
@@ -293,7 +293,7 @@ contract MySmartContract {
 }
 ```
 
-Although the changes above implement some mechanisms that help upgrading smart contracts, the first challenge described in the beginning of this article, *Clients to Reference the New Contract's Address*, is not solved with these simple techniques. More advanced patterns like [Proxies](https://blog.openzeppelin.com/proxy-patterns/) and [Registry](https://consensys.github.io/smart-contract-best-practices/software_engineering/#upgrading-broken-contracts), or using the [ENS](https://ens.domains/) to register a user-friendly name to your contract,  would be required to avoid all clients from upgrading to reference the new address of `Version 2`.
+Although the changes above implement some mechanisms that help upgrading smart contracts, the first challenge described in the beginning of this article, *Users to Reference the New Contract's Address*, is not solved with these simple techniques. More advanced patterns like [Proxies](https://blog.openzeppelin.com/proxy-patterns/) and [Registry](https://consensys.github.io/smart-contract-best-practices/software_engineering/#upgrading-broken-contracts), or using the [ENS](https://ens.domains/) to register a user-friendly name to your contract,  would be required to avoid all users from upgrading to reference the new address of `Version 2`.
 
 
 ## Conclusion
